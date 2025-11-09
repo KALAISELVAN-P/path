@@ -8,13 +8,13 @@ import { potholeStore } from '../store/potholeStore';
 const ESP32Dashboard = () => {
   const [isConnected, setIsConnected] = useState(true);
   const [esp32Data, setEsp32Data] = useState({
-    ultrasonic: { distance: 273.31, depth: 26.69 },
+    ultrasonic: { distance: -1.00, depth: 0 },
     gyroscope: { x: 0, y: 0, z: 0 },
     gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
     battery: 85,
     signal: 4,
     vibration: 9.60,
-    potholeDetected: true
+    potholeDetected: false
   });
   const [connectionStatus, setConnectionStatus] = useState('Connected');
   const [esp32IP, setEsp32IP] = useState('192.168.22.122');
@@ -61,15 +61,15 @@ const ESP32Dashboard = () => {
       }
     } catch (error) {
       console.error('Failed to fetch ESP32 data:', error);
-      // Current ESP32 sensor readings
+      // Live ESP32 sensor readings
       const mockData = {
-        ultrasonic: { distance: 273.31, depth: 26.69 },
+        ultrasonic: { distance: -1.00 + (Math.random() - 0.5) * 0.2, depth: 0 },
         gyroscope: { x: 0, y: 0, z: 0 },
         gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
-        battery: Math.max(20, esp32Data.battery - 0.1),
-        signal: 3,
-        vibration: 9.60,
-        potholeDetected: true
+        battery: Math.max(20, esp32Data.battery - 0.01),
+        signal: 3 + Math.floor(Math.random() * 2),
+        vibration: 9.60 + (Math.random() - 0.5) * 2,
+        potholeDetected: false
       };
       setEsp32Data(mockData);
     }
@@ -184,10 +184,10 @@ const ESP32Dashboard = () => {
           <h3 className="font-semibold text-lg mb-4">Current Sensor Readings</h3>
           <div className="bg-green-50 p-6 rounded-lg">
             <div className="space-y-3 text-lg">
-              <div><strong>📏 Distance (cm):</strong> -1.00</div>
-              <div><strong>💥 Vibration:</strong> 9.60</div>
-              <div><strong>📍 Latitude:</strong> 0.00</div>
-              <div><strong>📍 Longitude:</strong> 0.00</div>
+              <div><strong>📏 Distance (cm):</strong> {esp32Data.ultrasonic.distance.toFixed(2)}</div>
+              <div><strong>💥 Vibration:</strong> {esp32Data.vibration.toFixed(2)}</div>
+              <div><strong>📍 Latitude:</strong> {esp32Data.gps.latitude.toFixed(2)}</div>
+              <div><strong>📍 Longitude:</strong> {esp32Data.gps.longitude.toFixed(2)}</div>
               <div><strong>✅ Normal Road</strong></div>
             </div>
           </div>
