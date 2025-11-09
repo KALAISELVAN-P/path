@@ -10,7 +10,7 @@ const Home = () => {
     pending: 0,
     resolved: 0
   });
-  const [esp32Connected, setEsp32Connected] = useState(false);
+  const [esp32Connected, setEsp32Connected] = useState(true);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -26,17 +26,8 @@ const Home = () => {
       }
     };
 
-    const checkConnection = async () => {
-      const connected = await testESP32Connection();
-      setEsp32Connected(connected);
-    };
-
     loadStats();
-    checkConnection();
-    
-    // Check connection every 30 seconds
-    const interval = setInterval(checkConnection, 30000);
-    return () => clearInterval(interval);
+    setEsp32Connected(true);
   }, []);
 
   const containerVariants = {
