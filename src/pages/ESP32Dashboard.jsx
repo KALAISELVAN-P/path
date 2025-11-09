@@ -6,7 +6,7 @@ import L from 'leaflet';
 import { potholeStore } from '../store/potholeStore';
 
 const ESP32Dashboard = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
   const [esp32Data, setEsp32Data] = useState({
     ultrasonic: { distance: 0, depth: 0 },
     gyroscope: { x: 0, y: 0, z: 0 },
@@ -14,8 +14,8 @@ const ESP32Dashboard = () => {
     battery: 85,
     signal: 4
   });
-  const [connectionStatus, setConnectionStatus] = useState('Disconnected');
-  const [esp32IP, setEsp32IP] = useState('192.168.1.100');
+  const [connectionStatus, setConnectionStatus] = useState('Connected');
+  const [esp32IP, setEsp32IP] = useState('192.168.22.122');
 
   useEffect(() => {
     let interval;
