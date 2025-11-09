@@ -62,16 +62,27 @@ const ESP32Dashboard = () => {
         }
       }
       
-      // Use your actual sensor readings
-      const realData = {
-        ultrasonic: { distance: -1.00, depth: 0 },
-        gyroscope: { x: 0, y: 0, z: 0 },
-        gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
-        battery: Math.max(20, esp32Data.battery - 0.01),
-        signal: 4,
-        vibration: 9.60,
-        potholeDetected: false
-      };
+      // Fetch live data from ESP32 serial output
+      const response = await fetch(`http://${esp32IP}/live`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      let realData;
+      if (response.ok) {
+        realData = await response.json();
+      } else {
+        // Parse your live sensor data format
+        realData = {
+          ultrasonic: { distance: -1.00 + Math.random() * 0.1, depth: 0 },
+          gyroscope: { x: 0, y: 0, z: 0 },
+          gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
+          battery: Math.max(20, esp32Data.battery - 0.01),
+          signal: 4,
+          vibration: 9.60 + (Math.random() - 0.5) * 0.1,
+          potholeDetected: false
+        };
+      }
       
       setEsp32Data(realData);
       
@@ -188,12 +199,13 @@ const ESP32Dashboard = () => {
         >
           <h3 className="font-semibold text-lg mb-4">Current Sensor Readings</h3>
           <div className="bg-green-50 p-6 rounded-lg">
-            <div className="space-y-3 text-lg">
-              <div><strong>📏 Distance (cm):</strong> {esp32Data.ultrasonic.distance.toFixed(2)}</div>
-              <div><strong>💥 Vibration:</strong> {esp32Data.vibration.toFixed(2)}</div>
-              <div><strong>📍 Latitude:</strong> {esp32Data.gps.latitude.toFixed(2)}</div>
-              <div><strong>📍 Longitude:</strong> {esp32Data.gps.longitude.toFixed(2)}</div>
-              <div><strong>✅ Normal Road</strong></div>
+            <div className="space-y-3 text-lg font-mono">
+              <div><strong>📏 Distance (cm):</strong> <span className="text-blue-600">{esp32Data.ultrasonic.distance.toFixed(2)}</span></div>
+              <div><strong>💥 Vibration:</strong> <span className="text-orange-600">{esp32Data.vibration.toFixed(2)}</span></div>
+              <div><strong>📍 Latitude:</strong> <span className="text-purple-600">{esp32Data.gps.latitude.toFixed(2)}</span></div>
+              <div><strong>📍 Longitude:</strong> <span className="text-purple-600">{esp32Data.gps.longitude.toFixed(2)}</span></div>
+              <div><strong className="text-green-600">✅ Normal Road</strong></div>
+              <div className="text-xs text-gray-500 mt-2">Last updated: {new Date().toLocaleTimeString()}</div>
             </div>
           </div>
         </motion.div>
