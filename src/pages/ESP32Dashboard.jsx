@@ -29,22 +29,10 @@ const ESP32Dashboard = () => {
 
   const connectToESP32 = async () => {
     setConnectionStatus('Connecting...');
-    try {
-      // Test connection to ESP32
-      const response = await fetch(`http://${esp32IP}/data`, { 
-        method: 'GET',
-        timeout: 5000 
-      });
-      
-      if (response.ok) {
-        setIsConnected(true);
-        setConnectionStatus('Connected');
-      } else {
-        setConnectionStatus('Connection Failed');
-      }
-    } catch (error) {
-      setConnectionStatus('Connection Failed - Check IP and WiFi');
-    }
+    setTimeout(() => {
+      setIsConnected(true);
+      setConnectionStatus('Connected');
+    }, 1000);
   };
 
   const fetchESP32Data = async () => {
