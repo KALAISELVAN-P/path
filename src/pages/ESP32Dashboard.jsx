@@ -174,6 +174,25 @@ const ESP32Dashboard = () => {
 
 
 
+        {/* ESP32 Sensor Readings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="card-gradient mb-8"
+        >
+          <h3 className="font-semibold text-lg mb-4">Current Sensor Readings</h3>
+          <div className="bg-green-50 p-6 rounded-lg">
+            <div className="space-y-3 text-lg">
+              <div><strong>📏 Distance (cm):</strong> -1.00</div>
+              <div><strong>💥 Vibration:</strong> 9.60</div>
+              <div><strong>📍 Latitude:</strong> 0.00</div>
+              <div><strong>📍 Longitude:</strong> 0.00</div>
+              <div><strong>✅ Normal Road</strong></div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* System Status */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
