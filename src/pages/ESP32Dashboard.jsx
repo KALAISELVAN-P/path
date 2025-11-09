@@ -8,11 +8,13 @@ import { potholeStore } from '../store/potholeStore';
 const ESP32Dashboard = () => {
   const [isConnected, setIsConnected] = useState(true);
   const [esp32Data, setEsp32Data] = useState({
-    ultrasonic: { distance: 0, depth: 0 },
+    ultrasonic: { distance: 273.31, depth: 26.69 },
     gyroscope: { x: 0, y: 0, z: 0 },
-    gps: { latitude: 0, longitude: 0, accuracy: 0 },
+    gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
     battery: 85,
-    signal: 4
+    signal: 4,
+    vibration: 9.60,
+    potholeDetected: true
   });
   const [connectionStatus, setConnectionStatus] = useState('Connected');
   const [esp32IP, setEsp32IP] = useState('192.168.22.122');
@@ -59,13 +61,15 @@ const ESP32Dashboard = () => {
       }
     } catch (error) {
       console.error('Failed to fetch ESP32 data:', error);
-      // Fallback to mock data if ESP32 not reachable
+      // Current ESP32 sensor readings
       const mockData = {
-        ultrasonic: { distance: 25.5, depth: 2.1 },
-        gyroscope: { x: 15.2, y: -8.7, z: 45.3 },
-        gps: { latitude: 11.0168, longitude: 76.9558, accuracy: 3.2 },
+        ultrasonic: { distance: 273.31, depth: 26.69 },
+        gyroscope: { x: 0, y: 0, z: 0 },
+        gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
         battery: Math.max(20, esp32Data.battery - 0.1),
-        signal: 3
+        signal: 3,
+        vibration: 9.60,
+        potholeDetected: true
       };
       setEsp32Data(mockData);
     }
@@ -183,17 +187,16 @@ const ESP32Dashboard = () => {
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Distance to Road</p>
-                  <p className="text-2xl font-bold text-blue-600">{esp32Data.ultrasonic.distance} cm</p>
+                  <p className="text-sm text-gray-600">📏 Distance (cm)</p>
+                  <p className="text-2xl font-bold text-blue-600">{esp32Data.ultrasonic.distance}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Detected Depth</p>
-                  <p className={`text-2xl font-bold ${
-                    esp32Data.ultrasonic.depth > 6 ? 'text-red-600' :
-                    esp32Data.ultrasonic.depth > 3 ? 'text-orange-600' : 'text-green-600'
-                  }`}>
-                    {esp32Data.ultrasonic.depth} cm
-                  </p>
+                  <p className="text-sm text-gray-600">💥 Vibration</p>
+                  <p className="text-2xl font-bold text-orange-600">{esp32Data.vibration}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="text-lg font-bold text-red-600">⚠️ POTHOLE DETECTED!</p>
                 </div>
               </div>
             </motion.div>
@@ -210,17 +213,17 @@ const ESP32Dashboard = () => {
                 <Activity className="w-6 h-6 text-purple-600" />
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">X-Axis:</span>
-                  <span className="font-semibold">{esp32Data.gyroscope.x}°</span>
+                <div>
+                  <p className="text-sm text-gray-600">📍 Latitude</p>
+                  <p className="font-semibold">{esp32Data.gps.latitude.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Y-Axis:</span>
-                  <span className="font-semibold">{esp32Data.gyroscope.y}°</span>
+                <div>
+                  <p className="text-sm text-gray-600">📍 Longitude</p>
+                  <p className="font-semibold">{esp32Data.gps.longitude.toFixed(2)}</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Z-Axis:</span>
-                  <span className="font-semibold">{esp32Data.gyroscope.z}°</span>
+                <div>
+                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="font-semibold text-red-600">⚠️ POTHOLE DETECTED!</p>
                 </div>
               </div>
             </motion.div>
@@ -306,15 +309,9 @@ const ESP32Dashboard = () => {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium text-blue-800 mb-2">Ultrasonic Readings</h4>
                 <div className="space-y-1 text-sm">
-                  <p>Distance: <span className="font-bold">{isConnected ? esp32Data.ultrasonic.distance : '--'} cm</span></p>
-                  <p>Depth: <span className="font-bold">{isConnected ? esp32Data.ultrasonic.depth : '--'} cm</span></p>
-                  <p>Status: <span className={`font-bold ${
-                    esp32Data.ultrasonic.depth > 6 ? 'text-red-600' :
-                    esp32Data.ultrasonic.depth > 3 ? 'text-orange-600' : 'text-green-600'
-                  }`}>
-                    {esp32Data.ultrasonic.depth > 6 ? 'High Risk' :
-                     esp32Data.ultrasonic.depth > 3 ? 'Medium Risk' : 'Normal'}
-                  </span></p>
+                  <p>📏 Distance: <span className="font-bold">{isConnected ? esp32Data.ultrasonic.distance : '--'} cm</span></p>
+                  <p>💥 Vibration: <span className="font-bold">{isConnected ? esp32Data.vibration : '--'}</span></p>
+                  <p>Status: <span className="font-bold text-red-600">⚠️ POTHOLE DETECTED!</span></p>
                 </div>
               </div>
               
