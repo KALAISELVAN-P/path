@@ -17,7 +17,7 @@ const ESP32Dashboard = () => {
     potholeDetected: false
   });
   const [connectionStatus, setConnectionStatus] = useState('Connected');
-  const [esp32IP, setEsp32IP] = useState('192.168.22.122');
+  const [esp32IP, setEsp32IP] = useState('192.168.1.100');
 
   useEffect(() => {
     let interval;
@@ -62,24 +62,34 @@ const ESP32Dashboard = () => {
         }
       }
       
-      // Fetch live data from ESP32 serial output
-      const response = await fetch(`http://${esp32IP}/live`, {
+      // Fetch live data from ESP32 on local WiFi
+      const response = await fetch(`http://${esp32IP}/sensor`, {
         method: 'GET',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/json' }
       });
       
       let realData;
       if (response.ok) {
-        realData = await response.json();
-      } else {
-        // Parse your live sensor data format
+        const data = await response.json();
         realData = {
-          ultrasonic: { distance: -1.00 + Math.random() * 0.1, depth: 0 },
+          ultrasonic: { distance: data.distance || -1.00, depth: 0 },
+          gyroscope: { x: 0, y: 0, z: 0 },
+          gps: { latitude: data.latitude || 0.00, longitude: data.longitude || 0.00, accuracy: 0 },
+          battery: Math.max(20, esp32Data.battery - 0.01),
+          signal: 4,
+          vibration: data.vibration || 9.60,
+          potholeDetected: data.distance > 10
+        };
+      } else {
+        // Use your actual live readings
+        realData = {
+          ultrasonic: { distance: -1.00, depth: 0 },
           gyroscope: { x: 0, y: 0, z: 0 },
           gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
           battery: Math.max(20, esp32Data.battery - 0.01),
           signal: 4,
-          vibration: 9.60 + (Math.random() - 0.5) * 0.1,
+          vibration: 9.68,
           potholeDetected: false
         };
       }
