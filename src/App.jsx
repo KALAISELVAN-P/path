@@ -12,6 +12,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import ESP32Dashboard from './pages/ESP32Dashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -117,6 +118,14 @@ function App() {
               element={
                 isAuthenticated ? 
                 <AdminDashboard /> : 
+                <Navigate to="/login" />
+              } 
+            />
+            <Route 
+              path="/esp32" 
+              element={
+                isAuthenticated ? 
+                <ESP32Dashboard /> : 
                 <Navigate to="/login" />
               } 
             />

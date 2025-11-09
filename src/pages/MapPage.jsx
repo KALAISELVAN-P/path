@@ -5,6 +5,7 @@ import { RefreshCw, BarChart3, Shield, MapPin, Plus } from 'lucide-react';
 import L from 'leaflet';
 import { fetchPotholeData } from '../api/espApi';
 import AdminPanel from '../components/AdminPanel';
+import ESP32Status from '../components/ESP32Status';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { potholeStore } from '../store/potholeStore';
@@ -248,6 +249,9 @@ const MapPage = () => {
           </div>
         </div>
 
+        {/* ESP32 Status */}
+        <ESP32Status />
+        
         {/* Map */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

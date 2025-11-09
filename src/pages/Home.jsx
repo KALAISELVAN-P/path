@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Map, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { fetchPotholeData } from '../api/espApi';
+import { Map, FileText, AlertTriangle, CheckCircle, Clock, Wifi, WifiOff } from 'lucide-react';
+import { fetchPotholeData, testESP32Connection } from '../api/espApi';
 
 const Home = () => {
   const [stats, setStats] = useState({
@@ -10,6 +10,7 @@ const Home = () => {
     pending: 0,
     resolved: 0
   });
+  const [esp32Connected, setEsp32Connected] = useState(false);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -25,7 +26,17 @@ const Home = () => {
       }
     };
 
+    const checkConnection = async () => {
+      const connected = await testESP32Connection();
+      setEsp32Connected(connected);
+    };
+
     loadStats();
+    checkConnection();
+    
+    // Check connection every 30 seconds
+    const interval = setInterval(checkConnection, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const containerVariants = {
@@ -50,21 +61,47 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-violet-100 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/15 to-cyan-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-violet-400/15 to-purple-400/10 rounded-full blur-3xl animate-pulse-slow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-br from-emerald-400/10 to-teal-400/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-gradient-to-br from-rose-400/8 to-pink-400/5 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+      </div>
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10"
       >
         {/* Hero Section */}
         <motion.div variants={itemVariants} className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
             Smart Pothole Detection System
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-4 max-w-3xl mx-auto">
             Detect. Report. Repair. Making Roads Safer with IoT and AI.
           </p>
+          
+          {/* ESP32 Connection Status */}
+          <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium mb-8 ${
+            esp32Connected 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-red-100 text-red-800'
+          }`}>
+            {esp32Connected ? (
+              <>
+                <Wifi className="w-4 h-4" />
+                <span>ESP32 Connected (192.168.22.122)</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="w-4 h-4" />
+                <span>ESP32 Offline - Using Mock Data</span>
+              </>
+            )}
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/map">

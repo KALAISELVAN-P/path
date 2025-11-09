@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Map, FileText, BarChart3, Info, Phone, User, Shield } from 'lucide-react';
+import { Home, Map, FileText, BarChart3, Info, Phone, User, Shield, Cpu } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -31,6 +31,7 @@ const Navbar = ({ setIsAuthenticated }) => {
     { path: '/report', icon: FileText, label: 'Report' },
     { path: '/analytics', icon: BarChart3, label: 'Analytics' },
     { path: '/admin-dashboard', icon: Shield, label: 'Admin', onClick: handleAdminClick },
+    { path: '/esp32', icon: Cpu, label: 'ESP32' },
     { path: '/about', icon: Info, label: 'About' },
     { path: '/contact', icon: Phone, label: 'Contact' },
     { path: '/profile', icon: User, label: 'Profile' },
@@ -49,7 +50,7 @@ const Navbar = ({ setIsAuthenticated }) => {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
