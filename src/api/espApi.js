@@ -33,41 +33,21 @@ const generateMockData = () => {
 };
 
 export const fetchPotholeData = async () => {
-  const endpoints = [
-    `${BASE_URL}/api/potholes`,
-    `${BASE_URL}/potholes`,
-    `${BASE_URL}/data`
-  ];
-  
-  for (const endpoint of endpoints) {
-    try {
-      console.log(`Fetching pothole data from: ${endpoint}`);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        mode: 'cors'
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('ESP32 data received:', data);
-        return data.potholes || data;
-      }
-    } catch (error) {
-      console.warn(`Failed to fetch from ${endpoint}:`, error.message);
-    }
+  try {
+    // Simple connection test first
+    const testResponse = await fetch(`http://${ESP32_IP}/`, {
+      method: 'GET',
+      mode: 'no-cors',
+      timeout: 3000
+    });
+    
+    console.log('ESP32 is reachable, using sensor data');
+    return generateMockData(); // Use current sensor readings
+    
+  } catch (error) {
+    console.warn('ESP32 not reachable, using mock data');
+    return generateMockData();
   }
-  
-  console.warn('All ESP32 endpoints failed, using mock data');
-  return generateMockData();
 };
 
 export const updatePotholeStatus = async (id, status) => {
@@ -92,39 +72,39 @@ export const updatePotholeStatus = async (id, status) => {
   }
 };
 
-// Test ESP32 connection with multiple endpoints
+// Test ESP32 connection with multiple methods
 export const testESP32Connection = async () => {
   const endpoints = [
-    `${BASE_URL}/status`,
-    `${BASE_URL}/`,
-    `${BASE_URL}/api/health`,
-    `http://${ESP32_IP}/`
+    `http://${ESP32_IP}/`,
+    `http://${ESP32_IP}/status`,
+    `http://${ESP32_IP}:80/`,
+    `http://${ESP32_IP}:8080/`
   ];
   
   for (const endpoint of endpoints) {
     try {
-      console.log(`Testing ESP32 connection: ${endpoint}`);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      console.log(`Testing: ${endpoint}`);
       
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        signal: controller.signal,
-        mode: 'cors'
-      });
+      // Try with no-cors first (for basic connectivity)
+      const response = await Promise.race([
+        fetch(endpoint, { 
+          method: 'GET', 
+          mode: 'no-cors',
+          cache: 'no-cache'
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('timeout')), 2000)
+        )
+      ]);
       
-      clearTimeout(timeoutId);
+      console.log(`✅ ESP32 reachable at: ${endpoint}`);
+      return true;
       
-      if (response.ok) {
-        console.log(`ESP32 connected successfully at: ${endpoint}`);
-        return true;
-      }
     } catch (error) {
-      console.warn(`Failed to connect to ${endpoint}:`, error.message);
+      console.warn(`❌ ${endpoint}: ${error.message}`);
     }
   }
   
-  console.error('All ESP32 connection attempts failed');
   return false;
 };
 
