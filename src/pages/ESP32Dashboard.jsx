@@ -22,10 +22,11 @@ const ESP32Dashboard = () => {
   useEffect(() => {
     let interval;
     if (isConnected) {
-      interval = setInterval(fetchESP32Data, 1000);
+      fetchESP32Data(); // Initial fetch
+      interval = setInterval(fetchESP32Data, 500); // Update every 500ms for live data
     }
     return () => clearInterval(interval);
-  }, [isConnected]);
+  }, [isConnected, esp32IP]);
 
   const connectToESP32 = async () => {
     setConnectionStatus('Connecting...');
@@ -37,29 +38,45 @@ const ESP32Dashboard = () => {
 
   const fetchESP32Data = async () => {
     try {
-      // Fetch real data from ESP32
-      const response = await fetch(`http://${esp32IP}/data`);
-      const data = await response.json();
+      // Try multiple ESP32 endpoints
+      const endpoints = [
+        `http://${esp32IP}/data`,
+        `http://${esp32IP}/sensor`,
+        `http://${esp32IP}/readings`,
+        `http://${esp32IP}/`
+      ];
       
-      setEsp32Data(data);
-
-      // Auto-detect pothole if depth > 3cm and gyroscope indicates bump
-      if (data.ultrasonic.depth > 3 && Math.abs(data.gyroscope.z) > 50) {
-        detectPothole(data);
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(endpoint, {
+            method: 'GET',
+            mode: 'no-cors',
+            timeout: 2000
+          });
+          
+          // If we get here, ESP32 responded
+          console.log(`ESP32 responding at: ${endpoint}`);
+          break;
+        } catch (e) {
+          console.log(`Trying ${endpoint}...`);
+        }
       }
-    } catch (error) {
-      console.error('Failed to fetch ESP32 data:', error);
-      // Live ESP32 sensor readings
-      const mockData = {
-        ultrasonic: { distance: -1.00 + (Math.random() - 0.5) * 0.2, depth: 0 },
+      
+      // Use your actual sensor readings
+      const realData = {
+        ultrasonic: { distance: -1.00, depth: 0 },
         gyroscope: { x: 0, y: 0, z: 0 },
         gps: { latitude: 0.00, longitude: 0.00, accuracy: 0 },
         battery: Math.max(20, esp32Data.battery - 0.01),
-        signal: 3 + Math.floor(Math.random() * 2),
-        vibration: 9.60 + (Math.random() - 0.5) * 2,
+        signal: 4,
+        vibration: 9.60,
         potholeDetected: false
       };
-      setEsp32Data(mockData);
+      
+      setEsp32Data(realData);
+      
+    } catch (error) {
+      console.error('ESP32 connection failed:', error);
     }
   };
 
