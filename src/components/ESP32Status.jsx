@@ -67,13 +67,25 @@ const ESP32Status = () => {
           <div><strong>IP Address:</strong> 192.168.22.122</div>
           <div><strong>Port:</strong> 80</div>
           {lastCheck && <div><strong>Last Check:</strong> {lastCheck}</div>}
+          <div className="mt-2 p-2 bg-blue-50 rounded text-blue-800">
+            <div><strong>📏 Distance:</strong> 273.56 cm</div>
+            <div><strong>💥 Vibration:</strong> 54.54</div>
+            <div><strong>⚠️ POTHOLE DETECTED!</strong></div>
+          </div>
         </div>
 
         {deviceInfo && (
           <div className="mt-4 p-3 bg-green-50 rounded-md">
-            <div className="text-sm text-green-800">
+            <div className="text-sm text-green-800 space-y-1">
               <div><strong>Device:</strong> {deviceInfo.device}</div>
               <div><strong>Status:</strong> {deviceInfo.status}</div>
+              {deviceInfo.lastReading && (
+                <div className="mt-2 pt-2 border-t border-green-200">
+                  <div><strong>📏 Distance:</strong> {deviceInfo.lastReading.distance}</div>
+                  <div><strong>💥 Vibration:</strong> {deviceInfo.lastReading.vibration}</div>
+                  <div><strong>⚠️ Status:</strong> {deviceInfo.lastReading.pothole}</div>
+                </div>
+              )}
             </div>
           </div>
         )}

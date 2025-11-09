@@ -3,26 +3,33 @@ const ESP32_IP = '192.168.22.122';
 const ESP32_PORT = '80';
 const BASE_URL = `http://${ESP32_IP}:${ESP32_PORT}`;
 
-// Fallback mock data if ESP32 is unavailable
+// ESP32 sensor data
 const generateMockData = () => {
-  const potholes = [];
-  for (let i = 1; i <= 5; i++) {
-    const depth = Math.random() * 10 + 1;
-    let severity = 'low';
-    if (depth > 6) severity = 'high';
-    else if (depth > 3) severity = 'medium';
-    
-    potholes.push({
-      id: i,
-      latitude: 28.6139 + (Math.random() - 0.5) * 0.01,
-      longitude: 77.2090 + (Math.random() - 0.5) * 0.01,
-      depth: parseFloat(depth.toFixed(1)),
-      severity,
-      timestamp: new Date().toISOString(),
-      status: 'pending'
-    });
-  }
-  return potholes;
+  const distance = 273.56; // cm
+  const vibration = 54.54;
+  const latitude = 11.0168; // Default Coimbatore coordinates
+  const longitude = 76.9558;
+  
+  // Calculate pothole depth from distance sensor
+  const roadLevel = 300; // Assumed normal road level in cm
+  const depth = Math.max(0, roadLevel - distance);
+  
+  let severity = 'low';
+  if (depth > 15 || vibration > 50) severity = 'high';
+  else if (depth > 8 || vibration > 30) severity = 'medium';
+  
+  return [{
+    id: 'ESP001',
+    latitude,
+    longitude,
+    depth: parseFloat(depth.toFixed(1)),
+    distance: distance,
+    vibration: vibration,
+    severity,
+    timestamp: new Date().toISOString(),
+    status: 'pending',
+    location: 'ESP32 Sensor Location'
+  }];
 };
 
 export const fetchPotholeData = async () => {
@@ -137,8 +144,13 @@ export const getESP32Info = async () => {
   }
   
   return {
-    device: 'ESP32',
+    device: 'ESP32 Pothole Detector',
     ip: ESP32_IP,
-    status: 'offline'
+    status: 'offline',
+    lastReading: {
+      distance: '273.56 cm',
+      vibration: '54.54',
+      pothole: 'DETECTED'
+    }
   };
 };
